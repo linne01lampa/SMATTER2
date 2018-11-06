@@ -12,7 +12,7 @@ namespace GridGame
 
     class Program
     {
-
+        
 
         static void Main(string[] args)
         {
@@ -38,6 +38,8 @@ namespace GridGame
         List<GameObject> GameObjects = new List<GameObject>();
 
         List<LevelBase> Levels = new List<LevelBase>();
+
+        List<Scene> Scenes = new List<Scene>();
 
 
         public Game(int xSize, int ySize)
@@ -311,6 +313,102 @@ namespace GridGame
             }
         }
     }
+
+    abstract class Scene
+    {
+        public int index;
+        public abstract void Draw();
+    }
+
+    class MainMenu : Scene
+    {
+        public override void Draw()
+        {
+            Console.WriteLine("MainMenu.");
+            Console.WriteLine();
+            Console.WriteLine("1: Play");
+            Console.WriteLine("2: Highscores");
+            Console.WriteLine("3: Load");
+            Console.WriteLine("4: Exit");
+
+            ConsoleKeyInfo keyInfo = Console.ReadKey();
+        }
+    }
+
+    static class HighScore
+    {
+        static string path = "HighScores.txt";
+        static List<int> HighScorePoints;
+        static List<string> HighScoreNames;
+
+        public static void ShowHighScores()
+        {
+            Console.WriteLine("Highscores.");
+            Console.WriteLine();
+
+            for (int i = 0; i < HighScorePoints.Count; i++)
+            {
+                Console.WriteLine(HighScorePoints[i] + " " + HighScoreNames[i]);
+            }
+        }
+
+        public static void ReadHighScores()
+        {
+            HighScoreNames = new List<string>();
+            HighScorePoints = new List<int>();
+            string[] lines = System.IO.File.ReadAllLines(path);
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (i%2 == 0)
+                {
+                    HighScorePoints.Add(Convert.ToInt32(lines[i]));
+                }
+                else
+                {
+                    HighScoreNames.Add(lines[i]);
+                }
+            }
+        }
+
+        public static void WriteHighScores()
+        {
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(path))
+            {
+                for (int i = 0; i < HighScorePoints.Count; i++)
+                {
+                    file.WriteLine(HighScorePoints[i]);
+                    file.WriteLine(HighScoreNames[i]);
+                }
+            }
+        }
+
+        public static void AddHighScore(string name, int score)
+        {
+            for (int i = 0; i < HighScorePoints.Count; i++)
+            {
+                if (i == HighScorePoints.Count)
+                {
+                    HighScorePoints.Add(score);
+                    HighScoreNames.Add(name);
+                    break;
+                }
+                else if (score > HighScorePoints[i])
+                {
+                    HighScorePoints.Insert(i, score);
+                    HighScoreNames.Insert(i, name);
+                    break;
+                }
+            }
+
+            if (HighScorePoints.Count > 5)
+            {
+                HighScorePoints.RemoveAt(6);
+                HighScoreNames.RemoveAt(6);
+            }
+        }
+    }
+
 
 }
 
